@@ -1,0 +1,67 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textDetailTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/textDetailAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Author"/>
+
+        <TextView
+            android:id="@+id/textDetailBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Body"
+            android:paddingTop="8dp"/>
+
+        <TextView
+            android:id="@+id/textAnswersLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Answers"
+            android:textStyle="bold"
+            android:paddingTop="12dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerAnswers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/textOfflineHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Offline — answers unavailable"
+            android:visibility="gone"
+            android:paddingTop="8dp"/>
+
+        <Button
+            android:id="@+id/buttonRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Retry"
+            android:visibility="gone"/>
+
+        <ProgressBar
+            android:id="@+id/progressAnswers"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
+    </LinearLayout>
+</ScrollView>
