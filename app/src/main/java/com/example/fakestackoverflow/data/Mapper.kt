@@ -16,7 +16,8 @@ fun QuestionModel.toEntity(): QuestionEntity {
         score = this.score ?: 0,
         authorName = this.owner?.displayName,
         authorAvatar = this.owner?.profileImage,
-        lastActivityDate = this.lastActivityDate
+        lastActivityDate = this.lastActivityDate,
+        tags = this.tags?.joinToString("|")
     )
 }
 
@@ -27,7 +28,8 @@ fun QuestionEntity.toUiModel(): QuestionUIModel {
         body = this.body,
         score = this.score,
         author = this.authorName,
-        authorAvatar = this.authorAvatar
+        authorAvatar = this.authorAvatar,
+        tags = this.tags?.split("|")?.filter { it.isNotBlank() } ?: emptyList()
     )
 }
 

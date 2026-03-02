@@ -6,5 +6,6 @@ class QuestionUIModel(
     val body: String?,
     val score: Int,
     val author: String?,
-    val authorAvatar: String? = null
+    val authorAvatar: String? = null,
+    val tags: List<String> = emptyList()
 )

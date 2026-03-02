@@ -5,16 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fakestackoverflow.databinding.FragmentQuestionBinding
-
+import com.example.fakestackoverflow.R
 import com.example.fakestackoverflow.data.repository.Resource
-import com.example.fakestackoverflow.data.local.QuestionEntity
-import com.example.fakestackoverflow.data.toUiModel
+import com.example.fakestackoverflow.databinding.FragmentQuestionBinding
 import com.example.fakestackoverflow.model.QuestionUIModel
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -36,26 +36,36 @@ class QuestionFragment : Fragment() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
 
-        viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application))
-            .get(QuestionViewModel::class.java)
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        ).get(QuestionViewModel::class.java)
 
         binding.swipe.setOnRefreshListener { viewModel.loadQuestions() }
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.searchQuery.value = newText.orEmpty()
+                return true
+            }
+        })
+
+        lifecycleScope.launch {
+            viewModel.availableTags.collectLatest { tags -> updateTagChips(tags) }
+        }
 
         lifecycleScope.launch {
             viewModel.state.collectLatest { res ->
                 when (res) {
                     is Resource.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
                         binding.swipe.isRefreshing = true
                     }
                     is Resource.Success -> {
-                        binding.progressBar.visibility = View.GONE
                         binding.swipe.isRefreshing = false
-                        val uiList = res.data.map { it.toUiModel() } // toUiModel extension from your mappers
-                        adapter.submitList(uiList)
+                        adapter.submitList(res.data)
                     }
                     is Resource.Error -> {
-                        binding.progressBar.visibility = View.GONE
                         binding.swipe.isRefreshing = false
                         Toast.makeText(requireContext(), res.message, Toast.LENGTH_LONG).show()
                     }
@@ -64,8 +74,23 @@ class QuestionFragment : Fragment() {
         }
     }
 
+    private fun updateTagChips(tags: List<String>) {
+        binding.chipGroupTags.removeAllViews()
+        tags.forEach { tag ->
+            val chip = Chip(requireContext()).apply {
+                text = tag
+                isCheckable = true
+            }
+            binding.chipGroupTags.addView(chip)
+        }
+        binding.chipGroupTags.setOnCheckedStateChangeListener { group, checkedIds ->
+            val selected = checkedIds.firstOrNull()?.let { group.findViewById<Chip>(it) }
+            viewModel.selectedTag.value = selected?.text?.toString()
+        }
+    }
+
     private fun openDetail(model: QuestionUIModel) {
-        val frag = com.example.fakestackoverflow.ui.questions.QuestionDetailFragment().apply {
+        val frag = QuestionDetailFragment().apply {
             arguments = Bundle().apply {
                 putLong("questionId", model.questionId)
                 putString("title", model.title)
@@ -75,7 +100,7 @@ class QuestionFragment : Fragment() {
             }
         }
         parentFragmentManager.beginTransaction()
-            .replace(com.example.fakestackoverflow.R.id.container, frag)
+            .replace(R.id.container, frag)
             .addToBackStack(null)
             .commit()
     }

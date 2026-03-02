@@ -9,14 +9,10 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.util.concurrent.TimeUnit
 
  object NetworkModule {
-
-
      private const val BASE_URL = "https://api.stackexchange.com/2.3/"
-
      private val moshi: Moshi = Moshi.Builder()
          .add(KotlinJsonAdapterFactory())
          .build()
-
      fun provideOkHttpClient(): OkHttpClient {
          val logging = HttpLoggingInterceptor().apply {
              level = HttpLoggingInterceptor.Level.BODY
@@ -27,7 +23,6 @@ import java.util.concurrent.TimeUnit
              .readTimeout(30, TimeUnit.SECONDS)
              .build()
      }
-
      fun provideRetrofit(okHttpClient: OkHttpClient = provideOkHttpClient()): Retrofit {
          return Retrofit.Builder()
              .baseUrl(BASE_URL)

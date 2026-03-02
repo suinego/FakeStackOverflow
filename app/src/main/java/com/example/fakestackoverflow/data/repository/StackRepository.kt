@@ -1,10 +1,8 @@
 package com.example.fakestackoverflow.data.repository
 
 import android.content.Context
-import android.util.Log
 import com.example.fakestackoverflow.data.toEntity
 import com.example.fakestackoverflow.data.remote.OwnerModel
-import com.example.fakestackoverflow.data.toUiModel
 import com.example.fakestackoverflow.data.local.AnswerDao
 import com.example.fakestackoverflow.data.local.AnswerEntity
 import com.example.fakestackoverflow.data.local.QuestionDao
@@ -38,7 +36,6 @@ class StackRepository(
             try {
                 val resp = api.getQuestions()
                 val items = resp.items.map { it.toEntity() }
-                // save to DB
                 questionDao.insertAll(items)
                 val cached = questionDao.getAll()
                 emit(Resource.Success(cached))
@@ -60,7 +57,7 @@ class StackRepository(
                 val resp = api.getAnswers(questionId)
                 val items: List<AnswerModel> = resp.items
 
-                val entities: List<com.example.fakestackoverflow.data.local.AnswerEntity> =
+                val entities: List<AnswerEntity> =
                     items.map { dto ->
                         dto.toEntity(questionId)
                     }
@@ -70,8 +67,7 @@ class StackRepository(
 
                 Result.success(items)
             } else {
-                // оффлайн: читаем из БД
-                val cached: List<com.example.fakestackoverflow.data.local.AnswerEntity> =
+                val cached: List<AnswerEntity> =
                     answerDao.getByQuestion(questionId)
                 if (cached.isNotEmpty()) {
                     val asModels = cached.map { e ->
@@ -79,7 +75,7 @@ class StackRepository(
                             answerId = e.answerId,
                             body = e.body,
                             score = e.score,
-                            owner = com.example.fakestackoverflow.data.remote.OwnerModel(
+                            owner = OwnerModel(
                                 displayName = e.authorName,
                                 profileImage = e.authorAvatar
                             ),
@@ -88,11 +84,12 @@ class StackRepository(
                     }
                     Result.success(asModels)
                 } else {
-                    Result.failure(Exception("нет кеша"))
+                    Result.failure(Exception("Не был предоставлен кеш, для оффлайн загрузки материала.\nПерезагрузите страницу с подключением к интернету.\n" +
+                            "A cache was not provided for offline downloading of the material.\n" +
+                            "Please refresh the page with an internet connection."))
                 }
             }
         } catch (t: Throwable) {
-            // fallback to cached if available
             val cached = answerDao.getByQuestion(questionId)
             if (cached.isNotEmpty()) {
                 val asModels = cached.map { e ->
@@ -100,7 +97,7 @@ class StackRepository(
                         answerId = e.answerId,
                         body = e.body,
                         score = e.score,
-                        owner = com.example.fakestackoverflow.data.remote.OwnerModel(
+                        owner = OwnerModel(
                             displayName = e.authorName,
                             profileImage = e.authorAvatar
                         ),

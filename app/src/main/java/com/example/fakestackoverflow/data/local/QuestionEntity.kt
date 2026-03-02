@@ -11,5 +11,6 @@ data class QuestionEntity(
     val score: Int,
     val authorName: String?,
     val authorAvatar: String?,
-    val lastActivityDate: Long?
+    val lastActivityDate: Long?,
+    val tags: String? = null
 )

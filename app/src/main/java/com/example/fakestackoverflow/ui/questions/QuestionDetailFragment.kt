@@ -1,21 +1,16 @@
 package com.example.fakestackoverflow.ui.questions
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fakestackoverflow.data.toUiModel
 import com.example.fakestackoverflow.databinding.FragmentQuestionDetailBinding
 import com.example.fakestackoverflow.ui.answer.AnswerAdapter
-import com.example.fakestackoverflow.ui.questions.DetailState
-import com.example.fakestackoverflow.ui.questions.QuestionDetailViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -68,11 +63,7 @@ class QuestionDetailFragment : Fragment() {
                         binding.recyclerAnswers.visibility = View.VISIBLE
                         binding.textOfflineHint.visibility = View.GONE
                         binding.buttonRetry.visibility = View.GONE
-
-                        Log.d("QA", "Loaded answers count = ${st.data.size}")
-                        Toast.makeText(requireContext(), "Answers: ${st.data.size}", Toast.LENGTH_SHORT).show()
-
-                        answersAdapter.submitList(st.data) // уже Ui-модели
+                        answersAdapter.submitList(st.data)
                     }
                     is com.example.fakestackoverflow.data.repository.Resource.Error -> {
                         binding.progressAnswers.visibility = View.GONE

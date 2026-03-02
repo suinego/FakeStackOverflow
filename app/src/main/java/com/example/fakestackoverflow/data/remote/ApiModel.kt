@@ -15,7 +15,8 @@ data class QuestionModel(
     val body: String?,
     val score: Int?,
     val owner: OwnerModel?,
-    @Json(name = "last_activity_date") val lastActivityDate: Long?
+    @Json(name = "last_activity_date") val lastActivityDate: Long?,
+    val tags: List<String>? = null
 )
 
 data class OwnerModel(
